@@ -13,11 +13,13 @@
  */
 "use strict";
 var global = this;
+//browsers API
 var indexedDB = global.indexedDB || global.webkitIndexedDB;
 var IDBTransaction = global.IDBTransaction || global.webkitIDBTransaction;
 var IDBKeyRange = global.IDBKeyRange || global.webkitIDBKeyRange;
 var porridge=
 {
+    version:'0.2',
     db:null,
     log:function(e)
     {

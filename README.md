@@ -1,5 +1,5 @@
 # porridge.js - IndexDB JavaScript wrapper library
-fs.js - is simple wrapper for dealing with HTML(5) IndexDB.
+porridge.js - is simple wrapper for dealing with HTML(5) IndexDB.
 Idea of the project is to simplify standard API. There is no aim to support this in all versions of all browsers.
 
 ## License
