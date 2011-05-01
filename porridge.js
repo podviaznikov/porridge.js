@@ -70,9 +70,9 @@ var porridge=
         request.onfailure = handleError||this.log;
 
     },
-    all:function(db,entityName,handleOne,handleAll,handleError)
+    all:function(entityName,handleOne,handleAll,handleError)
     {
-        var trans = db.transaction(entityName, IDBTransaction.READ_WRITE, 0);
+        var trans = this.db.transaction(entityName, IDBTransaction.READ_WRITE, 0);
         var store = trans.objectStore(entityName);
         // Get everything from the store;
         var request = store.openCursor();
@@ -95,27 +95,27 @@ var porridge=
         };
         request.onerror = handleError||this.log;
     },
-    save:function(db,entityName,entity,key,handleError)
+    save:function(entityName,entity,key,handleError)
     {
-        var trans = db.transaction([entityName], IDBTransaction.READ_WRITE, 0);
+        var trans = this.db.transaction([entityName], IDBTransaction.READ_WRITE, 0);
         var store = trans.objectStore(entityName);
         var request = store.put(entity,key);
 
         request.onsuccess = porridge.info;
         request.onerror = handleError||this.log;
     },
-    remove:function(db,entityName,id,success,handleError)
+    remove:function(entityName,id,success,handleError)
     {
-        var trans = db.transaction(entityName, IDBTransaction.READ_WRITE, 0);
+        var trans = this.db.transaction(entityName, IDBTransaction.READ_WRITE, 0);
         var store = trans.objectStore(entityName);
 
         var request = store.delete(id);
         request.onsuccess = success;
         request.onerror = handleError||this.log;
     },
-    allByKey:function(db,entityName,keyName,keyValue,handleOne,handleAll,handleError)
+    allByKey:function(entityName,keyName,keyValue,handleOne,handleAll,handleError)
     {
-        var trans = db.transaction(entityName, IDBTransaction.READ_WRITE, 0);
+        var trans = this.db.transaction(entityName, IDBTransaction.READ_WRITE, 0);
         var store = trans.objectStore(entityName);
         var index = store.index(keyName);
         var range = new IDBKeyRange.only(keyValue);
