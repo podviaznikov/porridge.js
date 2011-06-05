@@ -6,43 +6,34 @@ var global = this;
 var indexedDB = global.indexedDB || global.webkitIndexedDB;
 var IDBTransaction = global.IDBTransaction || global.webkitIDBTransaction;
 var IDBKeyRange = global.IDBKeyRange || global.webkitIDBKeyRange;
-var Porridge=
-{
+var Porridge={
     version:'0.3',
     db:null,
-    log:function(e)
-    {
+    log:function(e){
         console.log(e);
     },
-    info:function(e)
-    {
+    info:function(e){
         console.info(e);
     },
-    init:function(config,handleSuccess,handleError)
-    {
-        var request = indexedDB.open(config.dbName,config.dbDescription);
-        var version = config.dbVersion;
-        request.onsuccess = function(e)
-        {
+    init:function(config,handleSuccess,handleError){
+        var request = indexedDB.open(config.dbName,config.dbDescription),
+            version = config.dbVersion;
+        request.onsuccess = function(e){
             var db = e.target.result;
             Porridge.db = db;
             // We can only create Object stores in a setVersion transaction;
-            if(version!= db.version)
-            {
+            if(version!= db.version){
                 var setVersionReq = db.setVersion(version);
                 // onsuccess is the only place we can create Object Stores
                 setVersionReq.onfailure = handleError||Porridge.log;
-                setVersionReq.onsuccess = function(e)
-                {
+                setVersionReq.onsuccess = function(e){
+                    var i = 0,k = 0;
                     //create store store
-                    for(var i=0;i<config.stores.length;i++)
-                    {
-                        var storeDef = config.stores[i];
-                        var store = db.createObjectStore(storeDef.name,storeDef.key,true);
-                        if(storeDef.indexes)
-                        {
-                            for(var k=0;k<storeDef.indexes.length;k++)
-                            {
+                    for(;i<config.stores.length;i++){
+                        var storeDef = config.stores[i],
+                            store = db.createObjectStore(storeDef.name,storeDef.key,true);
+                        if(storeDef.indexes){
+                            for(;k<storeDef.indexes.length;k++){
                                 var indexDef=storeDef.indexes[k];
                                 store.createIndex(indexDef.name, indexDef.field||indexDef.name);
                             }
@@ -51,30 +42,24 @@ var Porridge=
                     Porridge.log('initialized db');
                     handleSuccess();
                 };
-            }
-            else
-            {
+            }else{
                 handleSuccess();
             }
 
         };
         request.onfailure = handleError||this.log;
     },
-    all:function(entityName,handleOne,handleAll,handleError)
-    {
-        var trans = this.db.transaction([entityName], IDBTransaction.READ_WRITE, 0);
-        var store = trans.objectStore(entityName);
+    all:function(entityName,handleOne,handleAll,handleError){
+        var trans = this.db.transaction([entityName], IDBTransaction.READ_WRITE, 0),
+            store = trans.objectStore(entityName),
         // Get everything from the store;
-        var request = store.openCursor();
+            request = store.openCursor();
 
-        request.onsuccess = function(e)
-        {
+        request.onsuccess = function(e){
             var cursor = e.result ||       // The cursor is either in the event
                 e.target.result;           // ...or in the request object.
-            if (!cursor)                   // No cursor means no more results
-            {
-                if(handleAll)              //execute callback when all records retrieved
-                {
+            if (!cursor){                   // No cursor means no more results
+                if(handleAll){           //execute callback when all records retrieved
                     handleAll();
                 }
                 return;
@@ -85,41 +70,35 @@ var Porridge=
         };
         request.onerror = handleError||this.log;
     },
-    save:function(entityName,entity,key,handleError)
-    {
-        var trans = this.db.transaction([entityName], IDBTransaction.READ_WRITE, 0);
-        var store = trans.objectStore(entityName);
-        var request = store.put(entity,key);
+    save:function(entityName,entity,key,handleError){
+        var trans = this.db.transaction([entityName], IDBTransaction.READ_WRITE, 0),
+            store = trans.objectStore(entityName),
+            request = store.put(entity,key);
 
         request.onsuccess = Porridge.info;
         request.onerror = handleError||this.log;
     },
-    remove:function(entityName,id,success,handleError)
-    {
-        var trans = this.db.transaction([entityName], IDBTransaction.READ_WRITE, 0);
-        var store = trans.objectStore(entityName);
+    remove:function(entityName,id,success,handleError){
+        var trans = this.db.transaction([entityName], IDBTransaction.READ_WRITE, 0),
+            store = trans.objectStore(entityName),
+            request = store.delete(id);
 
-        var request = store.delete(id);
         request.onsuccess = success;
         request.onerror = handleError||this.log;
     },
-    allByKey:function(entityName,keyName,keyValue,handleOne,handleAll,handleError)
-    {
-        var trans = this.db.transaction([entityName], IDBTransaction.READ_WRITE, 0);
-        var store = trans.objectStore(entityName);
-        var index = store.index(keyName);
-        var range = new IDBKeyRange.only(keyValue);
+    allByKey:function(entityName,keyName,keyValue,handleOne,handleAll,handleError){
+        var trans = this.db.transaction([entityName], IDBTransaction.READ_WRITE, 0),
+            store = trans.objectStore(entityName),
+            index = store.index(keyName),
+            range = new IDBKeyRange.only(keyValue),
         // Get everything in the store;
-        var request = index.openCursor(range);
+            request = index.openCursor(range);
 
-        request.onsuccess = function(e)
-        {
+        request.onsuccess = function(e){
             var cursor = e.result ||       // The cursor is either in the event
                 e.target.result;           // ...or in the request object.
-            if (!cursor)                  // No cursor means no more results
-            {
-                if(handleAll)              //execute callback when all records retrieved
-                {
+            if (!cursor){                  // No cursor means no more results
+                if(handleAll){              //execute callback when all records retrieved
                     handleAll();
                 }
                 return;
